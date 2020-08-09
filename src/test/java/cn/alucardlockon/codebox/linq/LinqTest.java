@@ -1,8 +1,7 @@
 package cn.alucardlockon.codebox.linq;
 
 import cn.alucardlockon.codebox.collection.Collections;
-import cn.alucardlockon.codebox.functional.FunFe;
-import cn.alucardlockon.codebox.functional.FunMap;
+import cn.alucardlockon.codebox.functional.*;
 import org.junit.Test;
 
 import java.util.List;
@@ -15,24 +14,53 @@ public class LinqTest {
 
         System.out.println(Linqs.from(list)
                 // .distinct()
+                .filter(new FunFilter<String>() {
+                    @Override
+                    public boolean apply(String s, int index, List<String> list) {
+                        return s.equals("2");
+                    }
+                })
                 .forEach(new FunFe<String>() {
                     @Override
                     public void apply(String item, int index, List<String> list) {
                         System.out.println(index);
                     }
                 })
-                .map(new FunMap<String, Integer>() {
+                .select(new FunMap<String, Integer>() {
                     @Override
                     public Integer apply(String s, int index, List<String> list) {
                         return Integer.parseInt(s) + 10;
                     }
                 })
                 .slice(0, -1)
-                .groupBy(new FunMap<Integer, String>() {
-                    @Override
-                    public String apply(Integer integer, int index, List<Integer> list) {
-                        return "key_";
-                    }
-                }));
+                .join(" , ")
+        );
+    }
+
+    @Test
+    public void testString() {
+        List<User> list = Collections.newArrayList(
+                new User() {{
+                    setId("1");
+                    setName("who");
+                    setAge(18);
+                }},
+                new User() {{
+                    setId("2");
+                    setName("are");
+                    setAge(22);
+                }},
+                new User() {{
+                    setId("3");
+                    setName("u");
+                    setAge(12);
+                }}
+        );
+
+        System.out.println(Linqs.from(list)
+                .orderBy("name","asc")
+                .map("name")
+                .toList()
+        );
     }
 }

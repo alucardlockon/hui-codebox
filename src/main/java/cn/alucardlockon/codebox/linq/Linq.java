@@ -2,7 +2,8 @@ package cn.alucardlockon.codebox.linq;
 
 import cn.alucardlockon.codebox.core.Langs;
 import cn.alucardlockon.codebox.functional.*;
-import cn.alucardlockon.codebox.map.Maps;
+import cn.alucardlockon.codebox.reflect.Reflects;
+import cn.alucardlockon.codebox.string.Strings;
 
 import java.util.*;
 
@@ -29,6 +30,10 @@ public class Linq<T> {
      */
     public <R> Linq<R> select(FunMap<T, R> fun) {
         return map(fun);
+    }
+
+    public Linq<Object> select(String propName) {
+        return map(propName);
     }
 
     /**
@@ -87,6 +92,24 @@ public class Linq<T> {
         return this.list.size();
     }
 
+    public int sum(final FunMap<T, Integer> fun) {
+        final Linq<T> self = this;
+        return reduce(new FunReduce<T, Integer>() {
+            @Override
+            public Integer apply(T t, Integer accumulator, int index) {
+                return accumulator + fun.apply(t, index, self.list);
+            }
+        }, 0);
+    }
+
+    public int sum() {
+        int sum = 0;
+        for (T t : this.list) {
+            sum += (Integer) t;
+        }
+        return sum;
+    }
+
     /**
      * slice the result from beginIndex to endIndex
      */
@@ -112,7 +135,7 @@ public class Linq<T> {
      * slice the result from beginIndex to endIndex , just like slice, but beginIndex is from 1
      */
     public Linq<T> limit(int beginIndex, int endIndex) {
-        return slice(beginIndex, endIndex);
+        return slice(beginIndex + 1, endIndex + 1);
     }
 
     /**
@@ -147,6 +170,29 @@ public class Linq<T> {
             }
         });
         return this;
+    }
+
+    /**
+     * order by result
+     *
+     * @param order asc/desc
+     */
+    public Linq<T> orderBy(final String propName, final String order) {
+        return orderBy(new FunCp<T>() {
+            @Override
+            public int apply(T t1, T t2) {
+                Object o1 = Reflects.propGetter(t1, propName);
+                Object o2 = Reflects.propGetter(t2, propName);
+                if (o1 instanceof Number && o2 instanceof Number) {
+                    Comparable<Number> co1 = (Comparable<Number>) o1;
+                    Comparable<Number> co2 = (Comparable<Number>) o2;
+                    if (order.equals("desc")) return co2.compareTo((Number) o1);
+                    return co1.compareTo((Number) o2);
+                }
+                if (order.equals("desc")) return o2.toString().compareTo(o1.toString());
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
     }
 
     /**
@@ -209,13 +255,18 @@ public class Linq<T> {
         return Linqs.from(newList);
     }
 
+    public Linq<Object> map(final String propName) {
+        return map(Linqs.<T>mapProp(propName));
+    }
+
     /**
      * reduce the list
      */
     public <R> R reduce(FunReduce<T, R> fun, R accumulator) {
+        if (Langs.isEmpty(accumulator)) return null;
         int index = 0;
         for (T t : this.list) {
-            fun.apply(t, accumulator, index);
+            accumulator = fun.apply(t, accumulator, index);
             index++;
         }
         return accumulator;
@@ -231,6 +282,24 @@ public class Linq<T> {
             index++;
         }
         return this;
+    }
+
+    public String join(CharSequence str) {
+        if (Langs.isEmpty(this.list)) {
+            return "";
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        for (T item : this.list) {
+            if (isFirst) {
+                isFirst = false;
+                sb.append(item.toString());
+            } else {
+                sb.append(str).append(item.toString());
+            }
+        }
+        return sb.toString();
     }
 
     // methods that get result

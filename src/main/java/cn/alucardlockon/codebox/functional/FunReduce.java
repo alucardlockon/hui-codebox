@@ -7,5 +7,5 @@ import java.util.List;
  * @since 1.0
  */
 public interface FunReduce<T,R> {
-     R apply(T t, R list, int index);
+     R apply(T t, R accumulator, int index);
 }
