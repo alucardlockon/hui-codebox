@@ -1,5 +1,11 @@
 package cn.alucardlockon.codebox.array;
 
+import java.util.List;
+
+/**
+ * Array util
+ * @since 1.0
+ */
 public class Arrays {
 
     /**
@@ -17,6 +23,13 @@ public class Arrays {
      */
     public static boolean isNotEmpty(Object[] obj){
         return !isEmpty(obj);
+    }
+
+    /**
+     * cast array to List
+     */
+    public static <T> List<T> toList(T... array){
+        return java.util.Arrays.asList(array);
     }
 
 }

@@ -23,7 +23,7 @@ public class LinqTest {
                 })
                 .map(new FunMap<String, Integer>() {
                     @Override
-                    public Integer apply(String s) {
+                    public Integer apply(String s, int index, List<String> list) {
                         return Integer.parseInt(s) + 10;
                     }
                 })

@@ -7,6 +7,7 @@ import java.util.Collection;
 
 /**
  * 集合相关
+ * @since 1.0
  */
 public class Collections {
 

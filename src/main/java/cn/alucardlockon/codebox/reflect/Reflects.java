@@ -1,7 +1,7 @@
 package cn.alucardlockon.codebox.reflect;
 
 /**
- * 反射相关
+ * reflect util
  */
 public class Reflects {
 

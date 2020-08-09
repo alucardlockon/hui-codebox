@@ -1,15 +1,17 @@
 package cn.alucardlockon.codebox.linq;
 
-import cn.alucardlockon.codebox.collection.Collections;
 import cn.alucardlockon.codebox.core.Langs;
 import cn.alucardlockon.codebox.functional.FunFe;
+import cn.alucardlockon.codebox.functional.FunFilter;
 import cn.alucardlockon.codebox.functional.FunMap;
+import cn.alucardlockon.codebox.functional.FunReduce;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * operate List just like Linq
+ * @since 1.0
  */
 public class Linq<T> {
 
@@ -44,14 +46,22 @@ public class Linq<T> {
     /**
      * filter the list, alias from filter
      */
-    public Linq<T> where() {
-        return filter();
+    public Linq<T> where(FunFilter<T> fun) {
+        return filter(fun);
     }
 
     /**
      * filter the list
      */
-    public Linq<T> filter() {
+    public Linq<T> filter(FunFilter<T> fun) {
+        int index = 0;
+        List<T> newList = new ArrayList<>();
+        for (T t : this.list) {
+            if (fun.apply(t, index, this.list))
+                newList.add(t);
+            index++;
+        }
+        this.list = newList;
         return this;
     }
 
@@ -75,6 +85,7 @@ public class Linq<T> {
      * get the size of result
      */
     public int count() {
+        if (Langs.isEmpty(this.list)) return 0;
         return this.list.size();
     }
 
@@ -117,20 +128,20 @@ public class Linq<T> {
     /**
      * map the list
      */
-    public <R> Linq<R> map(FunMap<T,R> fun) {
+    public <R> Linq<R> map(FunMap<T, R> fun) {
         int index = 0;
-        List<R> newlist = new ArrayList<>();
+        List<R> newList = new ArrayList<>();
         for (T t : this.list) {
-            newlist.add(fun.apply(t));
+            newList.add(fun.apply(t, index, this.list));
             index++;
         }
-        return Linqs.from(newlist);
+        return Linqs.from(newList);
     }
 
     /**
      * reduce the list
      */
-    public Linq<T> reduce() {
+    public <R> Linq<T> reduce(FunReduce<T, R> fun, R accumulator) {
         return this;
     }
 
