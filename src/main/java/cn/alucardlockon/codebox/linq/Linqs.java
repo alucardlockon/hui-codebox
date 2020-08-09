@@ -27,7 +27,16 @@ public class Linqs {
         return new FunMap<T, Object>() {
             @Override
             public Object apply(T t, int index, List<T> list) {
-                return Reflects.propGetter(t, propName);
+                return Reflects.propGet(t, propName);
+            }
+        };
+    }
+
+    public static <T> FunMap<T, T> mapSelf() {
+        return new FunMap<T, T>() {
+            @Override
+            public T apply(T t, int index, List<T> list) {
+                return t;
             }
         };
     }

@@ -1,9 +1,11 @@
 package cn.alucardlockon.codebox.reflect;
 
+import cn.alucardlockon.codebox.map.Maps;
 import cn.alucardlockon.codebox.string.Strings;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * reflect util
@@ -24,7 +26,22 @@ public class Reflects {
     }
 
     public static <T> Object propGetter(T obj, String propName) {
-        return getProp(obj,"get"+ Strings.upperFirst(propName));
+        return getProp(obj, "get" + Strings.upperFirst(propName));
+    }
+
+    public static <T> Object propMapGet(T obj, String propName) {
+        return Maps.get((Map) obj, obj.getClass());
+    }
+
+    /**
+     * try to get porp from object
+     */
+    public static <T> Object propGet(T obj, String propName) {
+        if (obj instanceof Map) {
+            return propMapGet(obj, propName);
+        } else {
+            return propGetter(obj, propName);
+        }
     }
 
     /**

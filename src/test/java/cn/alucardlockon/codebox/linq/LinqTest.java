@@ -58,8 +58,47 @@ public class LinqTest {
         );
 
         System.out.println(Linqs.from(list)
-                .orderBy("name","asc")
+                .orderBy("name", "asc")
                 .map("name")
+                .toList()
+        );
+    }
+
+    @Test
+    public void testIntersection() {
+        List<User> list = Collections.newArrayList(
+                new User() {{
+                    setId("1");
+                    setName("who");
+                    setAge(18);
+                }},
+                new User() {{
+                    setId("2");
+                    setName("are");
+                    setAge(22);
+                }},
+                new User() {{
+                    setId("3");
+                    setName("u");
+                    setAge(12);
+                }}
+        );
+
+        List<User> list2 = Collections.newArrayList(
+                new User() {{
+                    setId("1");
+                    setName("who");
+                    setAge(18);
+                }},
+                new User() {{
+                    setId("4");
+                    setName("?");
+                    setAge(32);
+                }}
+        );
+
+        System.out.println(Linqs.from(list)
+                .subtraction(list2, Linqs.<User>mapProp("id"))
                 .toList()
         );
     }

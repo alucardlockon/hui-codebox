@@ -205,19 +205,19 @@ public class Linq<T> {
         for (T t : this.list) {
             R item = fun.apply(t, index, this.list);
             map.put(item, t);
+            index++;
         }
 
         this.list = new ArrayList<>(map.values());
         return this;
     }
 
+    public Linq<T> distinct(String propName) {
+        return distinct(Linqs.<T>mapProp(propName));
+    }
+
     public Linq<T> distinct() {
-        return distinct(new FunMap<T, T>() {
-            @Override
-            public T apply(T t, int index, List<T> list) {
-                return t;
-            }
-        });
+        return distinct(Linqs.<T>mapSelf());
     }
 
     /**
@@ -233,13 +233,6 @@ public class Linq<T> {
      */
     public Linq<T> unionAll(Linq<T> linq2) {
         return append(linq2);
-    }
-
-    /**
-     * append a list and distinct
-     */
-    public Linq<T> union(Linq<T> linq2) {
-        return append(linq2).distinct();
     }
 
     /**
@@ -300,6 +293,119 @@ public class Linq<T> {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * get intersection result
+     */
+    public <R> Linq<T> intersection(List<T> list2, FunMap<T, R> fun) {
+        if (Langs.isEmpty(this.list) || Langs.isEmpty(list2)) return this;
+        int index = 0;
+        Map<R, T> map = new LinkedHashMap<>();
+
+        for (T t : list2) {
+            R item = fun.apply(t, index, list2);
+            map.put(item, t);
+            index++;
+        }
+
+        index = 0;
+        List<T> result = new ArrayList<>();
+        for (T t : this.list) {
+            R item = fun.apply(t, index, this.list);
+            if (map.get(item) != null) {
+                result.add(t);
+            }
+            index++;
+        }
+
+        this.list = result;
+        return this;
+    }
+
+    public Linq<T> intersection(List<T> list2, String propName) {
+        return intersection(list2, Linqs.<T>mapProp(propName));
+    }
+
+    /**
+     * get different result
+     */
+    public <R> Linq<T> different(List<T> list2, FunMap<T, R> fun) {
+        if (Langs.isEmpty(this.list) || Langs.isEmpty(list2)) return this;
+
+        int index = 0;
+        Map<R, T> map = new LinkedHashMap<>();
+
+        for (T t : this.list) {
+            R item = fun.apply(t, index, this.list);
+            map.put(item, t);
+            index++;
+        }
+
+        index = 0;
+        for (T t : list2) {
+            R item = fun.apply(t, index, list2);
+            if (map.get(item) != null)
+                map.remove(item);
+            index++;
+        }
+
+        this.list = new ArrayList<>(map.values());
+        return this;
+    }
+
+    public Linq<T> different(List<T> list2, String propName) {
+        return different(list2, Linqs.<T>mapProp(propName));
+    }
+
+    /**
+     * get subtraction result
+     */
+    public <R> Linq<T> subtraction(List<T> list2, FunMap<T, R> fun) {
+        List<T> result = Linqs.from(list2).different(this.list, fun).toList();
+        result.addAll(Linqs.from(this.list).different(list2, fun).toList());
+        this.list = result;
+        return this;
+    }
+
+    public Linq<T> subtraction(List<T> list2, String propName) {
+        return subtraction(list2, Linqs.<T>mapProp(propName));
+    }
+
+    /**
+     * union a list and distinct
+     */
+    public <R> Linq<T> union(List<T> list2, FunMap<T, R> fun) {
+        if (Langs.isEmpty(this.list) && Langs.isEmpty(list2)) return this;
+        if (Langs.isEmpty(this.list)) return this;
+        if (Langs.isEmpty(list2)) {
+            this.list = list2;
+            return this;
+        }
+
+        int index = 0;
+        Map<R, T> map = new LinkedHashMap<>();
+
+        for (T t : this.list) {
+            R item = fun.apply(t, index, this.list);
+            map.put(item, t);
+            index++;
+        }
+
+        index = 0;
+        for (T t : list2) {
+            R item = fun.apply(t, index, list2);
+            if (map.get(item) != null) {
+                this.list.add(t);
+            }
+            index++;
+        }
+
+        return this;
+    }
+
+    public Linq<T> union(List<T> list2, String propName) {
+        return union(list2, Linqs.<T>mapProp(propName));
     }
 
     // methods that get result
