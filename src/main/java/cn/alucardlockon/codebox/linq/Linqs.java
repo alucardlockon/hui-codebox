@@ -1,4 +1,4 @@
-package cn.alucardlockon.codebox.collection;
+package cn.alucardlockon.codebox.linq;
 
 import java.util.List;
 
