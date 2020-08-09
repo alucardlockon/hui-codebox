@@ -1,12 +1,9 @@
 package cn.alucardlockon.codebox.collection;
 
 import cn.alucardlockon.codebox.core.Langs;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.ListUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 集合相关

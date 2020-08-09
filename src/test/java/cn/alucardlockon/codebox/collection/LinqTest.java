@@ -9,8 +9,8 @@ public class LinqTest {
 
     @Test
     public void testFrom() {
-        List<String> list = new ArrayList<>();
+        List<String> list = Collections.newArrayList("1","3","2","4","2");
 
-        new Linq<>(list);
+        System.out.println(Linqs.from(list).distinct().toList());
     }
 }
