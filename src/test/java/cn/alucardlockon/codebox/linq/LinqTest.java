@@ -14,7 +14,7 @@ public class LinqTest {
         List<String> list = Collections.newArrayList("1", "3", "2", "4", "2");
 
         System.out.println(Linqs.from(list)
-                .distinct()
+                // .distinct()
                 .forEach(new FunFe<String>() {
                     @Override
                     public void apply(String item, int index, List<String> list) {
@@ -27,6 +27,12 @@ public class LinqTest {
                         return Integer.parseInt(s) + 10;
                     }
                 })
-                .toList());
+                .slice(0, -1)
+                .groupBy(new FunMap<Integer, String>() {
+                    @Override
+                    public String apply(Integer integer, int index, List<Integer> list) {
+                        return "key_";
+                    }
+                }));
     }
 }

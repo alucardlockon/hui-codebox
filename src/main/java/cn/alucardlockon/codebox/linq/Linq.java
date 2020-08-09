@@ -1,16 +1,14 @@
 package cn.alucardlockon.codebox.linq;
 
 import cn.alucardlockon.codebox.core.Langs;
-import cn.alucardlockon.codebox.functional.FunFe;
-import cn.alucardlockon.codebox.functional.FunFilter;
-import cn.alucardlockon.codebox.functional.FunMap;
-import cn.alucardlockon.codebox.functional.FunReduce;
+import cn.alucardlockon.codebox.functional.*;
+import cn.alucardlockon.codebox.map.Maps;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * operate List just like Linq
+ *
  * @since 1.0
  */
 public class Linq<T> {
@@ -29,8 +27,8 @@ public class Linq<T> {
     /**
      * alias from map
      */
-    public Linq<T> select() {
-        return this;
+    public <R> Linq<R> select(FunMap<T, R> fun) {
+        return map(fun);
     }
 
     /**
@@ -92,29 +90,88 @@ public class Linq<T> {
     /**
      * slice the result from beginIndex to endIndex
      */
-    public Linq<T> limit() {
+    public Linq<T> slice(int beginIndex, int endIndex) {
+        if (Langs.isEmpty(this.list.isEmpty())) {
+            return this;
+        }
+
+        if (beginIndex < 0)
+            beginIndex = 0;
+        if (endIndex < 0 || endIndex > this.list.size())
+            endIndex = this.list.size();
+
+        final List<T> result = new ArrayList<>();
+        for (int i = beginIndex; i < endIndex; i++) {
+            result.add(list.get(i));
+        }
+        this.list = result;
         return this;
+    }
+
+    /**
+     * slice the result from beginIndex to endIndex , just like slice, but beginIndex is from 1
+     */
+    public Linq<T> limit(int beginIndex, int endIndex) {
+        return slice(beginIndex, endIndex);
     }
 
     /**
      * group by result with key
      */
-    public Linq<T> groupBy() {
-        return this;
+    public <K> Map<K, List<T>> groupBy(FunMap<T, K> fun) {
+        int index = 0;
+        Map<K, List<T>> map = new HashMap<>();
+
+        for (T t : this.list) {
+            K key = fun.apply(t, index, this.list);
+            List<T> map2 = map.get(key);
+            if (map2 == null) {
+                map2 = new ArrayList<>();
+                map.put(key, map2);
+            }
+            map2.add(t);
+            index++;
+        }
+
+        return map;
     }
 
     /**
      * order by result
      */
-    public Linq<T> orderBy() {
+    public Linq<T> orderBy(final FunCp<T> fun) {
+        java.util.Collections.sort(this.list, new Comparator<T>() {
+            @Override
+            public int compare(T t1, T t2) {
+                return fun.apply(t1, t2);
+            }
+        });
         return this;
     }
 
     /**
      * distinct a result
      */
-    public Linq<T> distinct() {
+    public <R> Linq<T> distinct(FunMap<T, R> fun) {
+        int index = 0;
+        Map<R, T> map = new LinkedHashMap<>();
+
+        for (T t : this.list) {
+            R item = fun.apply(t, index, this.list);
+            map.put(item, t);
+        }
+
+        this.list = new ArrayList<>(map.values());
         return this;
+    }
+
+    public Linq<T> distinct() {
+        return distinct(new FunMap<T, T>() {
+            @Override
+            public T apply(T t, int index, List<T> list) {
+                return t;
+            }
+        });
     }
 
     /**
@@ -123,6 +180,20 @@ public class Linq<T> {
     public Linq<T> append(Linq<T> linq2) {
         this.list.addAll(Langs.emptyIf(linq2.toList(), new ArrayList<T>()));
         return this;
+    }
+
+    /**
+     * append a list, alias from append
+     */
+    public Linq<T> unionAll(Linq<T> linq2) {
+        return append(linq2);
+    }
+
+    /**
+     * append a list and distinct
+     */
+    public Linq<T> union(Linq<T> linq2) {
+        return append(linq2).distinct();
     }
 
     /**
@@ -141,8 +212,13 @@ public class Linq<T> {
     /**
      * reduce the list
      */
-    public <R> Linq<T> reduce(FunReduce<T, R> fun, R accumulator) {
-        return this;
+    public <R> R reduce(FunReduce<T, R> fun, R accumulator) {
+        int index = 0;
+        for (T t : this.list) {
+            fun.apply(t, accumulator, index);
+            index++;
+        }
+        return accumulator;
     }
 
     /**
