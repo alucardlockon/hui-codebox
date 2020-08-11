@@ -20,6 +20,5 @@ dependencies {
 }
 
 task makejar(type: Jar) {
-    from ('build/classes')
-    into ('build/')
+    from ('build/classes/java/main')
 }
