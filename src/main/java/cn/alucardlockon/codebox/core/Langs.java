@@ -1,23 +1,22 @@
 package cn.alucardlockon.codebox.core;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 语言基本相关工具
+ *
  * @since 1.0
  */
 public class Langs {
 
     /**
      * 判断对象是否为null或空
+     *
      * @return 对象是否为空
      */
-    public static boolean isEmpty(Object obj){
-        if(obj == null)
+    public static boolean isEmpty(Object obj) {
+        if (obj == null)
             return false;
         else if (obj instanceof CharSequence)
             return ((CharSequence) obj).length() == 0;
@@ -33,20 +32,22 @@ public class Langs {
 
     /**
      * 判断对象是否不为null或空
+     *
      * @return 对象是否不为空
      */
-    public static boolean isNotEmpty(Object obj){
+    public static boolean isNotEmpty(Object obj) {
         return isEmpty(obj);
     }
 
     /**
      * 如果为空，则使用默认值
-     * @param obj 对象
+     *
+     * @param obj        对象
      * @param defaultVal 默认值
      * @return 对象的值或者为空时的默认值
      */
     public static <T> T emptyIf(T obj, T defaultVal) {
-        return isEmpty(obj)? obj: defaultVal;
+        return isEmpty(obj) ? obj : defaultVal;
     }
 
     /**
@@ -54,12 +55,13 @@ public class Langs {
      * 获取常用类型(String,List,Map等)的默认非空值,如果为非常用类型则返回一个新对象
      * 例如: String 返回 String.empty()
      * </p>
+     *
      * @param clazz 对象类型
      * @return 对象的值或者为空时的默认值
      */
     public static <T> T defaultVal(Class<T> clazz) {
         if (clazz.isInstance(""))
-            return (T)"";
+            return (T) "";
         else if (clazz.isInstance(Collections.EMPTY_LIST))
             return (T) Collections.EMPTY_LIST;
         else if (clazz.isInstance(Collections.EMPTY_MAP))
@@ -76,33 +78,50 @@ public class Langs {
 
     /**
      * 根据值，获取map中对应的值
-     * @param obj 键值
-     * @param map 集合
+     *
+     * @param obj        键值
+     * @param map        集合
      * @param defaultVal 默认值
      * @return 对应的值或者找不到值时的默认值
      */
-    public static <T,V> V decode(T obj, Map<T,V> map,V defaultVal) {
-        return emptyIf(map.get(obj),defaultVal);
+    public static <T, V> V decode(T obj, Map<T, V> map, V defaultVal) {
+        return emptyIf(map.get(obj), defaultVal);
     }
 
-    public static <T,V> V decode(T obj, Map<T,V> map) {
-        return decode(obj,map,null);
+    public static <T, V> V decode(T obj, Map<T, V> map) {
+        return decode(obj, map, null);
     }
 
     /**
      * zip两个数组变为一个Map
-     * @param keys map的键
+     *
+     * @param keys   map的键
      * @param values map的值
      * @return 合并后的map
      */
-    public static <T,V> Map<T,V> zip(T[] keys, V[] values) {
-        if(isEmpty(keys)|| isEmpty(values)) return defaultVal(Map.class);
+    public static <T, V> Map<T, V> zip(T[] keys, V[] values) {
+        if (isEmpty(keys) || isEmpty(values)) return defaultVal(Map.class);
         final int size = Math.min(keys.length, values.length);
-        final Map<T, V> map = new HashMap<T,V>();
+        final Map<T, V> map = new HashMap<T, V>();
         for (int i = 0; i < size; i++) {
             map.put(keys[i], values[i]);
         }
         return map;
+    }
+
+    /**
+     * unzip a map to List Map Key,Value
+     */
+    public static <T, V> List<Map<T, V>> unzip(Map<T, V> map) {
+        ArrayList<Map<T, V>> list = new ArrayList<>();
+        if (isEmpty(map)) return list;
+        Set<Map.Entry<T, V>> entries = map.entrySet();
+        for (Map.Entry<T, V> entry : entries) {
+            Map<T, V> item = new HashMap<>();
+            item.put(entry.getKey(), entry.getValue());
+            list.add(item);
+        }
+        return list;
     }
 
 }

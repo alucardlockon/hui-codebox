@@ -3,9 +3,9 @@ package cn.alucardlockon.codebox.linq;
 import cn.alucardlockon.codebox.core.Langs;
 import cn.alucardlockon.codebox.functional.*;
 import cn.alucardlockon.codebox.reflect.Reflects;
-import cn.alucardlockon.codebox.string.Strings;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * operate List just like Linq
@@ -136,6 +136,14 @@ public class Linq<T> {
      */
     public Linq<T> limit(int beginIndex, int endIndex) {
         return slice(beginIndex + 1, endIndex + 1);
+    }
+
+    /**
+     * page result
+     */
+    public Linq<T> page(int page, int pageSize) {
+        if (page < 1) page = 1;
+        return slice((page - 1) * pageSize, page * pageSize);
     }
 
     /**
@@ -406,6 +414,34 @@ public class Linq<T> {
 
     public Linq<T> union(List<T> list2, String propName) {
         return union(list2, Linqs.<T>mapProp(propName));
+    }
+
+    public boolean hasAny(FunFilter<T> fun) {
+        int index = 0;
+
+        for (T t : this.list) {
+            if (fun.apply(t, index, this.list)) {
+                return true;
+            }
+            index++;
+        }
+        return false;
+    }
+
+    public boolean hasAll(FunFilter<T> fun) {
+        int index = 0;
+        if (Langs.isEmpty(this.list)) return false;
+        for (T t : this.list) {
+            if (!fun.apply(t, index, this.list)) {
+                return false;
+            }
+            index++;
+        }
+        return true;
+    }
+
+    public boolean notIn(FunFilter<T> fun) {
+        return !hasAny(fun);
     }
 
     // methods that get result
