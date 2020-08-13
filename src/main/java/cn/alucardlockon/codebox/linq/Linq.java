@@ -204,6 +204,14 @@ public class Linq<T> {
     }
 
     /**
+     * reverse the list
+     */
+    public Linq<T> reverse() {
+        java.util.Collections.reverse(this.list);
+        return this;
+    }
+
+    /**
      * distinct a result
      */
     public <R> Linq<T> distinct(FunMap<T, R> fun) {
