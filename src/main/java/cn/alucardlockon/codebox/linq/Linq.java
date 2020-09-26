@@ -5,7 +5,6 @@ import cn.alucardlockon.codebox.functional.*;
 import cn.alucardlockon.codebox.reflect.Reflects;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * operate List just like Linq
