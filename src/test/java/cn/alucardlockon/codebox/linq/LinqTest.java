@@ -1,6 +1,7 @@
 package cn.alucardlockon.codebox.linq;
 
 import cn.alucardlockon.codebox.collection.Collections;
+import cn.alucardlockon.codebox.common.User;
 import cn.alucardlockon.codebox.functional.*;
 import org.junit.Test;
 

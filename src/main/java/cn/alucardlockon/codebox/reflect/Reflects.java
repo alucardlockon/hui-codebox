@@ -30,7 +30,7 @@ public class Reflects {
     }
 
     public static <T> Object propMapGet(T obj, String propName) {
-        return Maps.get((Map) obj, obj.getClass());
+        return Maps.get((Map) obj, propName);
     }
 
     /**
@@ -42,6 +42,32 @@ public class Reflects {
         } else {
             return propGetter(obj, propName);
         }
+    }
+
+    public static <T> Object propSet(T obj, String propName, Object val) {
+        if (obj instanceof Map) {
+            return propMapSet(obj, propName, val);
+        } else {
+            return propSetter(obj, propName, (Class<?>) val);
+        }
+    }
+
+    public static <T> Object setProp(T obj, String methodName, Class<?>... params) {
+        Object result = null;
+        try {
+            result = getMethod(obj, methodName, params).invoke(obj , (Object[]) params);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static <T> Object propSetter(T obj, String propName, Class<?>... params) {
+        return setProp(obj, "set" + Strings.upperFirst(propName), params);
+    }
+
+    public static <T> Object propMapSet(T obj, String propName, Object val) {
+        return ((Map)obj).put(propName, val);
     }
 
     /**

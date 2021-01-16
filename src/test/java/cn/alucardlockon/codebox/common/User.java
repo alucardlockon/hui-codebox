@@ -1,4 +1,4 @@
-package cn.alucardlockon.codebox.linq;
+package cn.alucardlockon.codebox.common;
 
 public class User {
     private String id;
